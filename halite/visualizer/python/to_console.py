@@ -25,7 +25,7 @@ def play_replay(replay):
                 if color == 0:
                     color = 7 #white
                 screen.print_at(thisStr, 3*y, x, color)
-        screen.print_at("*"*int(frameId/replay.h), 0, replay.h, 7)
+        screen.print_at(("*"*int(frameId/replay.h)).ljust(replay.h), 0, replay.h, 7)
         screen.refresh()
 
     def play_prod(screen):
@@ -63,15 +63,20 @@ def play_replay(replay):
                 else:
                     try:
                         cmd = chr(press)
-                        screen.print_at(cmd, 0, replay.h+2, 7)
                     except:
                         pass
             if cmd == ' ':
                 playing = not playing
             elif cmd == ',':
                 lastFrame -= 1
-            elif cmd == '.':
-                lastFrame += 1
+            elif cmd == '<':
+                lastFrame -= 5
+            elif cmd == '>':
+                lastFrame += 5
+            elif cmd == 'z': #rewind to start
+                lastFrame = 1
+            elif cmd == 'x': #ff to end
+                lastFrame = replay.w*replay.h
             elif cmd == '\t':
                 if showGame:
                     wasPlaying = playing
@@ -88,6 +93,7 @@ def play_replay(replay):
                 lastFrame = 0
             elif lastFrame >= len(replay.frames):
                 if playing:
+                    time.sleep(0.2)
                     break
                 else:
                     lastFrame = len(replay.frames)-1
