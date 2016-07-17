@@ -36,8 +36,21 @@ class Replay:
 
         self.frames = []
         for i in range(self.nframes):
-            self.frames.append(self._read_line())
+            frame = self._read_line()
+            frame = self._get_statistics(frame)
+            self.frames.append(frame)
 
+    def _get_statistics(self, frame):
+        stats = []
+        for i, (player, _) in enumerate(self.players):
+            s = {}
+            overlay = np.nonzero(frame.owned_by == i+1)
+            s['territory'] = len(overlay)
+            s['production'] = self.production[overlay].sum()
+            s['strength'] = frame.strengths[overlay].sum()
+            stats.append(s)
+        frame.stats = stats
+        return frame
 
     def _read_line(self):
         owned_by = np.zeros_like(self.production)
@@ -61,7 +74,7 @@ class Replay:
                     x += 1
 
         prodbytes = (ctypes.c_uint8  * (self.w*self.h))()
-        f.readinto(prodbytes)
+        self.f.readinto(prodbytes)
 
         return Map(self.production, owned_by, strength)
 
